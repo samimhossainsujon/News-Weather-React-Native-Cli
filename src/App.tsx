@@ -1,12 +1,14 @@
 import { View, Text } from 'react-native'
 import React from 'react'
+import Weather from './screen/WeatherScreen/Weather'
 
 const App = () => {
   return (
-    <View>
-      <Text>News & Weather App</Text>
-    </View>
+    <>
+      <Weather />
+    </>
   )
 }
 
 export default App
+
