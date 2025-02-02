@@ -2,8 +2,6 @@ import axios from "axios";
 import { apiKey } from "../components/constants/theme";
 import { ForecastParams, Location, LocationParams, WeatherData } from "../Type";
 
-// Define types for API parameters and responses
-
 
 const forecastEndpoint = (params: ForecastParams): string =>
     `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${params.cityName}&days=${params.days}&aqi=no&alerts=no`;

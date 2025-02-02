@@ -1,46 +1,78 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StatusBar, Image, SafeAreaView, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StatusBar, Image, SafeAreaView, TextInput, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import { COLORS } from '../../components/constants';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import AntDesignIcon from 'react-native-vector-icons/AntDesign';
 import { FetchLocations, FetchWeatherForecast } from '../../api/WeatherApi';
 import { Location, WeatherData } from '../../Type';
+import { getData, storeData } from '../../utils/AsyncStorage';
 
 const Weather = () => {
     const [showSearch, toggleSearch] = useState(false);
     const [locations, setLocations] = useState<Location[]>([]);
     const [weather, setWeather] = useState<WeatherData | null>(null);
+    const [loading, setLoading] = useState(true);
 
-    // Fetch initial weather data for a default city when the app loads
+
     useEffect(() => {
         fetchDefaultWeatherData();
     }, []);
 
-    const fetchDefaultWeatherData = () => {
-        FetchWeatherForecast({
-            cityName: 'London',
-            days: '7',
-        }).then((data: WeatherData) => {
-            setWeather(data);
-        });
-    };
-
     const handleLocation = (loc: Location) => {
         setLocations([]);
         toggleSearch(false);
+        setLoading(true); // Set loading to true when fetching new location data
         FetchWeatherForecast({
             cityName: loc.name,
             days: '7',
-        }).then((data: WeatherData) => {
-            setWeather(data);
-        });
+        })
+            // @ts-ignore
+            .then((data: WeatherData) => {
+                setWeather(data);
+                setLoading(false);
+                storeData("city", loc.name);
+            })
+            .catch((error) => {
+                console.error("Error fetching weather data:", error);
+                setLoading(false);
+            });
     };
+
+    const fetchDefaultWeatherData = async () => {
+        let myCity = await getData("city");
+        let cityName = "bangladesh"
+
+        if (myCity) cityName = myCity
+
+
+
+        FetchWeatherForecast({
+            cityName: 'bangladesh',
+            days: '7',
+        })
+            // @ts-ignore
+            .then((data: WeatherData) => {
+                setWeather(data);
+                setLoading(false);
+            })
+            .catch((error) => {
+                console.error("Error fetching weather data:", error);
+                setLoading(false);
+            });
+    };
+
+
 
     const handleSearch = (value: string) => {
         if (value.length > 2) {
-            FetchLocations({ cityName: value }).then((data: Location[]) => {
-                setLocations(data);
-            });
+            FetchLocations({ cityName: value })
+                // @ts-ignore
+                .then((data: Location[]) => {
+                    setLocations(data);
+                })
+                .catch((error) => {
+                    console.error("Error fetching locations:", error);
+                });
         } else {
             setLocations([]);
         }
@@ -54,121 +86,134 @@ const Weather = () => {
             <Image
                 style={styles.backgroundImage}
                 blurRadius={70}
-                source={require("../../components/assets/images/bg.png")}
+                source={require("../../components/assets/images/bg3.jpg")}
             />
-            <SafeAreaView style={styles.safeArea}>
-                {/* Search Bar */}
-                <View style={styles.searchContainer}>
-                    <View style={[styles.searchBar, { backgroundColor: showSearch ? COLORS.white : 'transparent' }]}>
-                        {showSearch && (
-                            <TextInput
-                                onChangeText={handleSearch}
-                                placeholder="Search City"
-                                placeholderTextColor={COLORS.primary}
-                                style={styles.searchInput}
-                            />
+            {loading ? (
+                <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="large" color={COLORS.primary} />
+                </View>
+            ) : (
+                <SafeAreaView style={styles.safeArea}>
+                    {/* Search Bar */}
+                    <View style={styles.searchContainer}>
+                        <View style={[styles.searchBar, { backgroundColor: showSearch ? COLORS.white : 'transparent' }]}>
+                            {showSearch && (
+                                <TextInput
+                                    onChangeText={handleSearch}
+                                    placeholder="Search City"
+                                    placeholderTextColor={COLORS.primary}
+                                    style={styles.searchInput}
+                                />
+                            )}
+                            <TouchableOpacity
+                                onPress={() => toggleSearch(!showSearch)}
+                                style={styles.searchButton}
+                            >
+                                <FontAwesome name="search" color={showSearch ? COLORS.primary : COLORS.background} size={27} />
+                            </TouchableOpacity>
+                        </View>
+
+                        {/* Location List */}
+                        {locations.length > 0 && showSearch && (
+                            <View style={styles.locationList}>
+                                {locations.map((loc, index) => {
+                                    const showBorder = index + 1 !== locations.length;
+                                    return (
+                                        <TouchableOpacity
+                                            onPress={() => handleLocation(loc)}
+                                            key={loc.id}
+                                            style={[
+                                                styles.locationItem,
+                                                showBorder && styles.locationItemBorder,
+                                            ]}
+                                        >
+                                            <FontAwesome name="map-marker" color={COLORS.primary} size={27} />
+                                            <Text style={styles.locationText}>{loc.name}, {loc.country}</Text>
+                                        </TouchableOpacity>
+                                    );
+                                })}
+                            </View>
                         )}
-                        <TouchableOpacity
-                            onPress={() => toggleSearch(!showSearch)}
-                            style={styles.searchButton}
-                        >
-                            <FontAwesome name="search" color={showSearch ? COLORS.primary : COLORS.background} size={27} />
-                        </TouchableOpacity>
                     </View>
 
-                    {/* Location List */}
-                    {locations.length > 0 && showSearch && (
-                        <View style={styles.locationList}>
-                            {locations.map((loc, index) => {
-                                const showBorder = index + 1 !== locations.length;
-                                return (
-                                    <TouchableOpacity
-                                        onPress={() => handleLocation(loc)}
-                                        key={loc.id}
-                                        style={[
-                                            styles.locationItem,
-                                            showBorder && styles.locationItemBorder,
-                                        ]}
-                                    >
-                                        <FontAwesome name="map-marker" color={COLORS.primary} size={27} />
-                                        <Text style={styles.locationText}>{loc.name}, {loc.country}</Text>
-                                    </TouchableOpacity>
-                                );
-                            })}
+                    {/* Location Section */}
+                    {location && (
+                        <View style={styles.locationSection}>
+                            <Text style={styles.locationTextMain}>
+                                {location.name}
+                                <Text style={styles.locationTextSub}>
+                                    {`, ${location.region}, ${location.country}`}
+                                </Text>
+                            </Text>
                         </View>
                     )}
-                </View>
 
-                {/* Location Section */}
-                {location && (
-                    <View style={styles.locationSection}>
-                        <Text style={styles.locationTextMain}>
-                            {location.name}
-                            <Text style={styles.locationTextSub}>
-                                {`, ${location.region}, ${location.country}`}
-                            </Text>
-                        </Text>
+                    {/* Weather Image */}
+                    <View style={styles.weatherImageContainer}>
+                        <Image
+                            source={{ uri: `https:${current?.condition?.icon}` }}
+                            style={styles.weatherImage}
+                        />
                     </View>
-                )}
+                    {current && (
+                        <View style={styles.temperatureContainer}>
+                            <Text style={styles.temperatureText}>{current.temp_c}&#176;</Text>
+                            <Text style={styles.weatherConditionText}>{current.condition.text}</Text>
+                        </View>
+                    )}
 
-                {/* Weather Image */}
-                <View style={styles.weatherImageContainer}>
-                    <Image
-                        source={{ uri: `https:${current?.condition?.icon}` }}
-                        style={styles.weatherImage}
-                    />
-                </View>
-                {current && (
-                    <View style={styles.temperatureContainer}>
-                        <Text style={styles.temperatureText}>{current.temp_c}&#176;</Text>
-                        <Text style={styles.weatherConditionText}>{current.condition.text}</Text>
-                    </View>
-                )}
+                    {/* Weather Stats */}
+                    {current && (
+                        <View style={styles.weatherStatsContainer}>
+                            <View style={styles.statItem}>
+                                <Image style={styles.statIcon} source={require("../../components/assets/icons/wind.png")} />
+                                <Text style={styles.statText}>{current.wind_kph} km/h</Text>
+                            </View>
+                            <View style={styles.statItem}>
+                                <Image style={styles.statIcon} source={require("../../components/assets/icons/drop.png")} />
+                                <Text style={styles.statText}>{current.humidity}%</Text>
+                            </View>
+                            <View style={styles.statItem}>
+                                <Image style={styles.statIcon} source={require("../../components/assets/icons/sun.png")} />
+                                <Text style={styles.statText}>{current.sunrise} 6:05</Text>
+                            </View>
+                        </View>
+                    )}
 
-                {/* Weather Stats */}
-                {current && (
-                    <View style={styles.weatherStatsContainer}>
-                        <View style={styles.statItem}>
-                            <Image style={styles.statIcon} source={require("../../components/assets/icons/wind.png")} />
-                            <Text style={styles.statText}>{current.wind_kph} km/h</Text>
-                        </View>
-                        <View style={styles.statItem}>
-                            <Image style={styles.statIcon} source={require("../../components/assets/icons/drop.png")} />
-                            <Text style={styles.statText}>{current.humidity}%</Text>
-                        </View>
-                        <View style={styles.statItem}>
-                            <Image style={styles.statIcon} source={require("../../components/assets/icons/sun.png")} />
-                            <Text style={styles.statText}>{current.sunrise}</Text>
-                        </View>
-                    </View>
-                )}
+                    {/* Daily Forecast */}
+                    {weather?.forecast && (
+                        <View style={styles.forecastContainer}>
+                            <View style={styles.forecastHeader}>
+                                <AntDesignIcon name="calendar" color={COLORS.white} size={27} />
+                                <Text style={styles.forecastHeaderText}>Daily Forecast</Text>
+                            </View>
+                            <ScrollView
+                                horizontal
+                                contentContainerStyle={styles.forecastScrollView}
+                                showsHorizontalScrollIndicator={false}
+                            >
+                                {weather.forecast.forecastday.map((day, index) => {
+                                    const date = new Date(day.date);
+                                    const options = { weekday: 'long' };
+                                    // @ts-ignore
+                                    const dayName = date.toLocaleDateString('en-US', options).split(',')[0];
 
-                {/* Daily Forecast */}
-                {weather?.forecast && (
-                    <View style={styles.forecastContainer}>
-                        <View style={styles.forecastHeader}>
-                            <AntDesignIcon name="calendar" color={COLORS.white} size={27} />
-                            <Text style={styles.forecastHeaderText}>Daily Forecast</Text>
+                                    return (
+                                        <View key={index} style={styles.forecastItem}>
+                                            <Image
+                                                style={styles.forecastImage}
+                                                source={{ uri: `https:${day.day.condition.icon}` }}
+                                            />
+                                            <Text style={styles.forecastDay}>{dayName}</Text>
+                                            <Text style={styles.forecastTemperature}>{day.day.maxtemp_c}&#176;</Text>
+                                        </View>
+                                    );
+                                })}
+                            </ScrollView>
                         </View>
-                        <ScrollView
-                            horizontal
-                            contentContainerStyle={styles.forecastScrollView}
-                            showsHorizontalScrollIndicator={false}
-                        >
-                            {weather.forecast.forecastday.map((day, index) => (
-                                <View key={index} style={styles.forecastItem}>
-                                    <Image
-                                        style={styles.forecastImage}
-                                        source={{ uri: `https:${day.day.condition.icon}` }}
-                                    />
-                                    <Text style={styles.forecastDay}>{new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' })}</Text>
-                                    <Text style={styles.forecastTemperature}>{day.day.maxtemp_c}&#176;</Text>
-                                </View>
-                            ))}
-                        </ScrollView>
-                    </View>
-                )}
-            </SafeAreaView>
+                    )}
+                </SafeAreaView>
+            )}
         </View>
     );
 };
@@ -335,6 +380,11 @@ const styles = StyleSheet.create({
         color: COLORS.white,
         fontWeight: '600',
         fontSize: 18,
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 });
 
