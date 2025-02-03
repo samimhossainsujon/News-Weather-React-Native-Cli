@@ -33,14 +33,16 @@ const NewsDetails: React.FC<NewsType> = ({ route }) => {
                     }}
                     source={{ uri: item?.urlToImage }}
                 />
-                <View style={{ flexDirection: 'row', alignContent: 'space-between', marginStart: 10, }}>
+                <View style={{ flexDirection: 'row', alignContent: 'space-between', marginStart: 15, gap: 50 }}>
                     <Text style={{ color: COLORS.slate[500], letterSpacing: 0, fontSize: 15, fontWeight: '300' }}>
-                        {item.author}                    </Text>
+                        {item.author}
+                    </Text>
                     <Text style={{ color: COLORS.slate[500], marginTop: 5, letterSpacing: 2, fontSize: 12, fontWeight: '300' }}>
                         {new Date(item.publishedAt).toLocaleDateString()} </Text>
                 </View>
-                <Text style={{ marginTop: 10, fontWeight: 'bold', fontSize: 21, color: COLORS.black, textAlign: 'center' }}>{item.title}</Text>
-
+                <Text style={{ marginTop: 10, fontSize: 22, color: COLORS.black, fontWeight: 'bold', textAlign: 'center', padding: 5 }}>{item.title}</Text>
+                <Text style={{ marginTop: 10, fontSize: 18, color: COLORS.black, textAlign: 'left', padding: 5 }}>{item.description}</Text>
+                <Text style={{ marginTop: 10, fontSize: 18, color: COLORS.black, textAlign: 'left', padding: 5 }}>{item.content}</Text>
             </View>
         </ScrollView>
     );
