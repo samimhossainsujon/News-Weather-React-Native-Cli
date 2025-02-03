@@ -23,6 +23,7 @@
     "axios": "^1.7.9",
     "lodash": "^4.17.21",
     "react": "18.3.1",
+    "react-hook-form": "^7.54.2",
     "react-native": "0.77.0",
     "react-native-gesture-handler": "^2.22.1",
     "react-native-heroicons": "^4.0.0",
