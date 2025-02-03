@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
         height: '10%',
         position: 'relative',
         zIndex: 50,
-        marginTop: 40,
+        marginTop: 5,
         padding: 5,
     },
     searchBar: {

@@ -2,25 +2,10 @@ import { Dimensions } from "react-native";
 const { width, height } = Dimensions.get('window');
 
 export const apiKey = "493a2ff9d9654006906191447250202"
+export const apiNewsKey = "3d3c0167fdb64230a63b7a1539d9d736"
 
 
-export const WeatherImages = {
-    "Partly Cloud": require('../assets/images/partlycloudy.png'),
-    "Moderate rain": require('../assets/images/moderaterain.png'),
-    "Patchy rain possible": require('../assets/images/moderaterain.png'),
-    "Sunny": require('../assets/images/sun.png'),
-    "Clear": require('../assets/images/sun.png'),
-    "Overcast": require('../assets/images/cloud.png'),
-    "Cloudy": require('../assets/images/cloud.png'),
-    "Light rain": require('../assets/images/moderaterain.png'),
-    "Moderate rain at times": require('../assets/images/moderaterain.png'),
-    "Havy rain": require('../assets/images/heavyrain.png'),
-    "Heavy rain at times": require('../assets/images/heavyrain.png'),
-    "Moderate or Heavy Freezing rain": require('../assets/images/heavyrain.png'),
-    "Moderate or heavy rain shower": require('../assets/images/heavyrain.png'),
-    "Moderate or heavy rain with thunder": require('../assets/images/heavyrain.png'),
-    "other": require('../assets/images/moderaterain.png')
-}
+
 
 
 

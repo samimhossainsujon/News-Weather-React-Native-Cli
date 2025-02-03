@@ -1,14 +1,16 @@
-import { View, Text } from 'react-native'
-import React from 'react'
-import Weather from './screen/WeatherScreen/Weather'
+import React from 'react';
+import { Provider } from 'react-redux';
+import store from './redux/store';
+import NavigationBar from './components/NavigationBar/NavigationBar';
+
 
 const App = () => {
+
   return (
-    <>
-      <Weather />
-    </>
-  )
-}
+    <Provider store={store}>
+      <NavigationBar />
+    </Provider>
+  );
+};
 
-export default App
-
+export default App;
