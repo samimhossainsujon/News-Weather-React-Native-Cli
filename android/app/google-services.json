@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "265045952744",
+    "project_id": "all-project-testing-adf42",
+    "storage_bucket": "all-project-testing-adf42.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:265045952744:android:b0d382b47668419942615d",
+        "android_client_info": {
+          "package_name": "com.samimhossainsujon.newsweather"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "265045952744-qf5i6ls3t018em2agvsli11ee6oj9256.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCjFyGgQdob--QtPrHcAypgItw4BmtSIAM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "265045952744-qf5i6ls3t018em2agvsli11ee6oj9256.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

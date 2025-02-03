@@ -2,28 +2,50 @@ import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { useNavigation } from '@react-navigation/native';
+import Auth from '../../Firebase/auth'; // Ensure this path is correct
+
+interface FormData {
+    fullName: string;
+    email: string;
+    phoneNumber: string;
+    password: string;
+}
 
 const Register = () => {
     const navigation = useNavigation();
-    const { control, handleSubmit, formState: { errors } } = useForm();
+    const { control, handleSubmit, formState: { errors } } = useForm<FormData>();
 
-    const onSubmit = (data: any) => {
-        Alert.alert("Registration Successful", `Welcome, ${data.fullName}!`);
-        // @ts-ignore
-        navigation.navigate("Login");
+    const onSubmit = async (data: FormData) => {
+        try {
+            const { fullName, email, phoneNumber, password } = data;
+
+            // Call the signUp function from the Auth module
+            const uid = await Auth.signUp({ fullName, email, phoneNumber, password });
+
+            if (uid) {
+                Alert.alert('Registration Successful', `Welcome, ${fullName}!`);
+                // Navigate to the Login screen after successful registration
+                navigation.navigate('Login' as never);
+            }
+        } catch (error: any) {
+            // Handle errors from Firebase or other issues
+            Alert.alert('Error', error.message || 'Failed to register. Please try again.');
+        }
     };
 
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Register</Text>
+
+            {/* Full Name Input */}
             <Controller
                 control={control}
                 rules={{
                     required: 'Full Name is required',
                     minLength: {
                         value: 3,
-                        message: 'Name must be at least 3 characters long'
-                    }
+                        message: 'Name must be at least 3 characters long',
+                    },
                 }}
                 render={({ field: { onChange, onBlur, value } }) => (
                     <TextInput
@@ -37,18 +59,17 @@ const Register = () => {
                 )}
                 name="fullName"
             />
-            {/*  @ts-ignore */}
             {errors.fullName && <Text style={styles.error}>{errors.fullName.message}</Text>}
 
-            {/* ইমেইল ইনপুট */}
+            {/* Email Input */}
             <Controller
                 control={control}
                 rules={{
                     required: 'Email is required',
                     pattern: {
                         value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                        message: 'Enter a valid email address'
-                    }
+                        message: 'Enter a valid email address',
+                    },
                 }}
                 render={({ field: { onChange, onBlur, value } }) => (
                     <TextInput
@@ -63,18 +84,17 @@ const Register = () => {
                 )}
                 name="email"
             />
-            {/*  @ts-ignore */}
             {errors.email && <Text style={styles.error}>{errors.email.message}</Text>}
 
-            {/* মোবাইল নম্বর ইনপুট */}
+            {/* Phone Number Input */}
             <Controller
                 control={control}
                 rules={{
                     required: 'Phone Number is required',
                     pattern: {
                         value: /^(?:\+?88)?01[3-9]\d{8}$/,
-                        message: 'Enter a valid Bangladeshi phone number'
-                    }
+                        message: 'Enter a valid Bangladeshi phone number',
+                    },
                 }}
                 render={({ field: { onChange, onBlur, value } }) => (
                     <TextInput
@@ -89,18 +109,17 @@ const Register = () => {
                 )}
                 name="phoneNumber"
             />
-            {/*  @ts-ignore */}
             {errors.phoneNumber && <Text style={styles.error}>{errors.phoneNumber.message}</Text>}
 
-            {/* পাসওয়ার্ড ইনপুট */}
+            {/* Password Input */}
             <Controller
                 control={control}
                 rules={{
                     required: 'Password is required',
                     minLength: {
                         value: 6,
-                        message: 'Password must be at least 6 characters'
-                    }
+                        message: 'Password must be at least 6 characters',
+                    },
                 }}
                 render={({ field: { onChange, onBlur, value } }) => (
                     <TextInput
@@ -115,17 +134,15 @@ const Register = () => {
                 )}
                 name="password"
             />
-            {/*  @ts-ignore */}
             {errors.password && <Text style={styles.error}>{errors.password.message}</Text>}
 
-            {/* রেজিস্টার বাটন */}
+            {/* Register Button */}
             <TouchableOpacity style={styles.button} onPress={handleSubmit(onSubmit)}>
                 <Text style={styles.buttonText}>Register</Text>
             </TouchableOpacity>
 
-
-            {/*  @ts-ignore */}
-            <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+            {/* Login Link */}
+            <TouchableOpacity onPress={() => navigation.navigate('Login' as never)}>
                 <Text style={styles.loginText}>Already have an account? Login</Text>
             </TouchableOpacity>
         </View>

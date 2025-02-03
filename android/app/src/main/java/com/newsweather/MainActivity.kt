@@ -1,4 +1,4 @@
-package com.newsweather
+package com.samimhossainsujon.newsweather
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate

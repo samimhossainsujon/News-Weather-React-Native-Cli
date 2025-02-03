@@ -2,35 +2,50 @@ import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { useNavigation } from '@react-navigation/native';
+import Auth from '../../Firebase/auth';
+
+interface FormData {
+    email: string;
+    password: string;
+}
 
 const Login = () => {
     const navigation = useNavigation();
-    const { control, handleSubmit, formState: { errors } } = useForm();
+    const { control, handleSubmit, formState: { errors } } = useForm<FormData>();
 
-    const onSubmit = (data: any) => {
-        Alert.alert("Success", `Welcome, ${data.email}!`);
-        //@ts-ignore
-        navigation.navigate("Home"); 
+    const onSubmit = async (data: FormData) => {
+        try {
+            const { email, password } = data;
+            await Auth.signIn({ email, password });
+
+            Alert.alert('Success', `Welcome, ${email}!`);
+            // Navigate to the Home screen
+            navigation.navigate('Home' as never);
+        } catch (error) {
+            Alert.alert('Error', 'Failed to login. Please check your credentials.');
+        }
     };
 
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Login</Text>
 
+            {/* Email Input */}
             <Controller
                 control={control}
                 rules={{
                     required: 'Email is required',
                     pattern: {
                         value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
-                        message: 'Enter a valid email address'
-                    }
+                        message: 'Enter a valid email address',
+                    },
                 }}
                 render={({ field: { onChange, onBlur, value } }) => (
                     <TextInput
                         style={styles.input}
                         placeholder="Email"
                         placeholderTextColor="#aaa"
+                        keyboardType="email-address"
                         onBlur={onBlur}
                         onChangeText={onChange}
                         value={value}
@@ -38,17 +53,17 @@ const Login = () => {
                 )}
                 name="email"
             />
-            {/*  @ts-ignore */}
             {errors.email && <Text style={styles.error}>{errors.email.message}</Text>}
 
+            {/* Password Input */}
             <Controller
                 control={control}
                 rules={{
                     required: 'Password is required',
                     minLength: {
                         value: 6,
-                        message: 'Password must be at least 6 characters'
-                    }
+                        message: 'Password must be at least 6 characters',
+                    },
                 }}
                 render={({ field: { onChange, onBlur, value } }) => (
                     <TextInput
@@ -63,15 +78,15 @@ const Login = () => {
                 )}
                 name="password"
             />
-            {/*  @ts-ignore */}
             {errors.password && <Text style={styles.error}>{errors.password.message}</Text>}
 
+            {/* Login Button */}
             <TouchableOpacity style={styles.button} onPress={handleSubmit(onSubmit)}>
                 <Text style={styles.buttonText}>Login</Text>
             </TouchableOpacity>
 
-            {/* @ts-ignore */}
-            <TouchableOpacity onPress={() => navigation.navigate("Register")}>
+            {/* Register Link */}
+            <TouchableOpacity onPress={() => navigation.navigate('Register' as never)}>
                 <Text style={styles.registerText}>Don't have an account? Register</Text>
             </TouchableOpacity>
         </View>
@@ -129,4 +144,3 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
 });
-
